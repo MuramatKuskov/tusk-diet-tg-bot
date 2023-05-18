@@ -1,0 +1,7 @@
+[build]
+functions = "functions"
+[[redirects]]
+ from = "/web-data"
+  to = "/.netlify/functions/api"
+  headers = { Access-Control-Allow-Origin = "*", Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept" }
+  methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
