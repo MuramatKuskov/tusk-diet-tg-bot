@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const bot = require('../../src/index');
 
 // middleware парсить жсон
 app.use(express.json());
