@@ -4,8 +4,10 @@ const TelegramBot = require('node-telegram-bot-api');
 // свои импорты
 const createRecipe = require('./modules/createRecipe');
 
-const token = process.env.token.replace(/'/g, '');
-const channelID = process.env.channelID;
+//const token = process.env.token.replace(/'/g, '');
+//const channelID = process.env.channelID;
+const token = '6242230676:AAHFjdZKMd8nscpdePSuayXi4bHwBg9jHJU';
+const channelID = -1001476634890;
 
 // Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(token, { polling: true });
