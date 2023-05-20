@@ -1,9 +1,11 @@
 [build]
 functions = "functions"
 [[redirects]]
- from = "https://jolly-dango-f4d24a.netlify.app/web-data"
+ from = "/jolly-dango-f4d24a.netlify.app/web-data"
   to = "/.netlify/functions/api"
-  headers = { 'Access-Control-Allow-Origin' = "*", 'Access-Control-Allow-Headers' = "Origin, X-Requested-With, Content-Type, Accept" }
-  methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
   status = 200
-  force = true
+
+[[headers]]
+for = "/*"
+   [headers.values]
+   Access-Control-Allow-Origin = "*"
