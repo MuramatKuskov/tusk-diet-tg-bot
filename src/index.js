@@ -51,7 +51,9 @@ async function start() {
 
 // обработка входящего запроса
 app.post('/pushRecipe', async (req, res) => {
-	const { queryId, newRecipe } = req.body;
+	console.log('post req accepted');
+	console.log(req.body);
+	/* const { queryId, newRecipe } = req.body;
 	// dataBase.push(newRecipe)
 	try {
 		await bot.answerWebAppQuery(queryId, {
@@ -69,10 +71,15 @@ app.post('/pushRecipe', async (req, res) => {
 			input_message_content: { message_text: 'Не удалось добавить рецепт: ' + error }
 		});
 		return res.status(500).json({});
-	}
+	} */
+	res.send("Gotcha");
 })
 
-const PORT = 8080;
+app.get('/smth', async (req, res) => {
+	return res.json("Gotcha")
+})
+
+const PORT = 80;
 app.listen(PORT, () => { console.log('Server started!'); });
 
 
