@@ -79,7 +79,7 @@ app.get('/smth', async (req, res) => {
 	return res.json("Gotcha")
 })
 
-const PORT = 80;
+const PORT = 8080;
 app.listen(PORT, () => { console.log('Server started!'); });
 
 
