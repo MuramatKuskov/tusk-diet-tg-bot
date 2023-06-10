@@ -2,11 +2,16 @@
 const TelegramBot = require('node-telegram-bot-api');
 const express = require('express');
 const cors = require('cors');
+const mongoose = require('mongoose');
+const Recipe = require('./Recipe.js');
+require('dotenv').config();
 // свои импорты
 const createRecipe = require('./modules/createRecipe');
 
 const token = process.env.token.replace(/'/g, '');
 const channelID = process.env.channelID;
+const DB_URL = process.env.DB_URL;
+
 // Create a bot that uses 'pollinpushRecipeg' to fetch new updates
 const bot = new TelegramBot(token, { polling: true });
 
@@ -53,6 +58,9 @@ async function start() {
 app.post('/pushRecipe', async (req, res) => {
 	console.log('post req accepted');
 	console.log(req.body);
+	const { img, title, ingredients, process, link, tags } = req.body;
+	const recipe = await Recipe.create({ img, title, ingredients, process, link, tags });
+	res.json(recipe);
 	/* const { queryId, newRecipe } = req.body;
 	// dataBase.push(newRecipe)
 	try {
@@ -72,15 +80,30 @@ app.post('/pushRecipe', async (req, res) => {
 		});
 		return res.status(500).json({});
 	} */
-	res.send("Gotcha");
+	//res.send("Gotcha");
 })
 
 app.get('/smth', async (req, res) => {
 	return res.json("Gotcha")
-})
+});
+
+app.get('/', (req, res) => {
+	try {
+		res.json('Server is running...');
+	} catch (e) {
+		res.status(500).json(e);
+	}
+});
 
 const PORT = 8080;
-app.listen(PORT, () => { console.log('Server started!'); });
+async function startServer() {
+	try {
+		await mongoose.connect(DB_URL);
+		app.listen(PORT, () => { console.log(`Server started on port ${PORT}!`); });
+	} catch (e) {
+		console.log(e);
+	}
+}
 
-
+startServer();
 start();
