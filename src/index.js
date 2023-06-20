@@ -3,7 +3,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const Recipe = require('./Recipe.js');
+const Recipe = require('./schemas/Recipe.js');
 require('dotenv').config();
 // свои импорты
 const createRecipe = require('./modules/createRecipe');
@@ -56,36 +56,13 @@ async function start() {
 
 // обработка входящего запроса
 app.post('/pushRecipe', async (req, res) => {
-	console.log('post req accepted');
-	console.log(req.body);
-	const { img, title, ingredients, process, link, tags } = req.body;
-	const recipe = await Recipe.create({ img, title, ingredients, process, link, tags });
-	res.json(recipe);
-	/* const { queryId, newRecipe } = req.body;
-	// dataBase.push(newRecipe)
 	try {
-		await bot.answerWebAppQuery(queryId, {
-			type: 'article',
-			id: queryId,
-			title: 'Успех',
-			input_message_content: { message_text: 'Рецепт добавлен' }
-		});
-		return res.status(200).json({});
+		await Recipe.create(req.body.recipe);
+		return res.json('nice');
 	} catch (error) {
-		await bot.answerWebAppQuery(queryId, {
-			type: 'article',
-			id: queryId,
-			title: 'Неудача',
-			input_message_content: { message_text: 'Не удалось добавить рецепт: ' + error }
-		});
-		return res.status(500).json({});
-	} */
-	//res.send("Gotcha");
+		return res.status(500).json(error);
+	}
 })
-
-app.get('/smth', async (req, res) => {
-	return res.json("Gotcha")
-});
 
 app.get('/', (req, res) => {
 	try {
@@ -95,11 +72,25 @@ app.get('/', (req, res) => {
 	}
 });
 
+app.get('/getRecipes', async (req, res) => {
+	console.log(req.query);
+	try {
+		const data = await Recipe.find(req.query);
+		return res.json(data);
+	} catch (e) {
+		console.log(e);
+		return res.status(500).json(e);
+	}
+})
+
 const PORT = 8080;
+
 async function startServer() {
 	try {
 		await mongoose.connect(DB_URL);
 		app.listen(PORT, () => { console.log(`Server started on port ${PORT}!`); });
+		// вот так просто получать данные из базы
+		//await Recipe.find({ title: 'Банановый брауни' });
 	} catch (e) {
 		console.log(e);
 	}
