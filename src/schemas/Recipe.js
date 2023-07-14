@@ -13,4 +13,6 @@ const Recipe = new mongoose.Schema({
 	moderating: { type: Boolean, required: true },
 });
 
+//Recipe.index({ title: 'text' }, { default_language: "russian" });
+
 module.exports = mongoose.model('Recipe', Recipe);

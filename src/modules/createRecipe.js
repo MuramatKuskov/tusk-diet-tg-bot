@@ -1,9 +1,9 @@
-async function createRecipe(chatId, bot, channelID, start) {
+async function createRecipe(chatId, bot, channelID, handleChat) {
 	async function handleInput(msg) {
 		bot.removeListener("message");
 		if (msg.text === "Отменить") {
 			await bot.sendMessage(chatId, "Рецепт удален", { reply_markup: { keyboard: [[{ text: "Добавить рецепт" }]] } });
-			return start();
+			return handleChat();
 		}
 		return true;
 	}
@@ -57,7 +57,7 @@ async function createRecipe(chatId, bot, channelID, start) {
 			{ parse_mode: "HTML" });
 		await bot.sendMessage(chatId, `Рецепт добавлен`, { reply_markup: { keyboard: [[{ text: "Добавить рецепт" }]] } });
 		bot.removeListener("message");
-		start();
+		handleChat();
 	}
 	getTitle();
 }
