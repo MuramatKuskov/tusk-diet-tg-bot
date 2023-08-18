@@ -1,15 +1,20 @@
 const mongoose = require('mongoose');
 
 const Recipe = new mongoose.Schema({
-	img: { type: String, required: false },
+	img: String,
 	title: { type: String, required: true },
-	type: { type: Array, required: true },
-	ingredients: { type: Array, required: true },
+	origin: String,
+	type: { type: [String], required: true },
+	ingredients: { type: [String], required: true },
+	quantities: [Number],
+	units: [String],
 	cook: { type: String, required: true },
+	difficulty: String,
 	time: { type: Number, required: true },
-	link: { type: String, required: false },
-	tags: { type: String, required: false },
+	rating: Number,
+	ratingIterator: { type: Number, default: 0 },
 	author: { type: String, required: false },
+	link: String,
 	moderating: { type: Boolean, required: true },
 });
 

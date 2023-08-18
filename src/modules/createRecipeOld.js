@@ -1,13 +1,40 @@
 // Здесь просто код вырезанный из index.js, соответственно для его работы нужно добавить параметры с переменными, которые там остались
 
-function createRecipe(title, ingredients, process, tags) {
+/* function createRecipe(title, ingredients, process, tags) {
 	return {
 		title,
 		ingredients,
 		process,
 		tags
 	}
+} */
+
+const recipeBlank = () => {
+	return ({
+		img: "#",
+		title: "",
+		type: [],
+		ingredients: [],
+		quantities: [],
+		units: [],
+		cook: "",
+		time: 10,
+		rating: null,
+		ratingIterator: 0,
+		link: "",
+		author: "",
+		moderating: true,
+	})
 }
+const recipe = recipeBlank();
+
+
+function createRecipe(params) {
+	for (let key in params) {
+		recipe[key] = params[key]
+	}
+}
+createRecipe({ title: "asd", ingredients: 'asd' })
 
 async function addRecipe(chatId) {
 	let steps = 1;
