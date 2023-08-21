@@ -18,13 +18,13 @@ async function createRecipe(query, bot, handleChat) {
 			rating: null,
 			ratingIterator: 0,
 			link: "",
-			author: query.user.username,
+			// author: query.user.username,
 			anonymously: false,
 			moderating: true,
 		})
 	}
 	const recipe = recipeBlank();
-	console.log(query.user.username);
+	console.log(query, query?.user);
 
 	async function handleBtns(query, nextStep) {
 		switch (query.data) {
