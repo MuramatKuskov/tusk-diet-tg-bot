@@ -10,6 +10,7 @@ const createRecipe = require('./modules/createRecipe');
 const pushRecipe = require('./endpoints/pushRecipe.js');
 const getRecipes = require('./endpoints/getRecipes.js');
 const searchRecipe = require('./modules/searchRecipe.js');
+const healthCheck = require('./endpoints/healthCheck.js');
 
 const token = process.env.token.replace(/'/g, '');
 const DB_URL = process.env.DB_URL;
@@ -75,6 +76,7 @@ async function startServer() {
 		// эндпоинты
 		pushRecipe(app);
 		getRecipes(app);
+		healthCheck(app);
 	} catch (e) {
 		console.log(e);
 	}

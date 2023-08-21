@@ -68,7 +68,6 @@ module.exports = app => {
 			} */
 
 			const data = await Recipe.aggregate(pipeline);
-			console.log(data, pipeline);
 
 			return res.json(data);
 		} catch (e) {

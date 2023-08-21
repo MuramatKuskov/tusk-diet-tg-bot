@@ -42,21 +42,18 @@ async function searchRecipe(query, bot, handleChat) {
 					})
 				}
 				if (!pipeline.length) {
-					try {
-						await bot.editMessageText("Укажите параметры поиска", {
-							chat_id: chatId,
-							message_id: query.message.message_id,
-						});
-					} catch (e) { console.log(e.message); }
 					bot.answerCallbackQuery(query.id);
-					return getTitle();
+					return getTitle(query);
 				};
 				const foundRecipe = await Recipe.aggregate(pipeline);
 				const answer = foundRecipe.length ?
-					`<b>${foundRecipe[0].title}</b>
+					`<b>${foundRecipe[0].title.charAt(0).toUpperCase() + foundRecipe[0].title.slice(1)}</b>
 					<b><u>Ингредиенты</u></b>
 					${foundRecipe[0].ingredients.map((el, i) => {
-						return `${el} — ${foundRecipe[0].quantities[i]}${foundRecipe[0].units[i]}`
+						return foundRecipe[0].quantities[i] ?
+							`\n${el.charAt(0).toUpperCase()}${el.slice(1)} — ${foundRecipe[0].quantities[i]}${foundRecipe[0].units[i]}`
+							:
+							`\n${el.charAt(0).toUpperCase()}${el.slice(1)}`
 					})}
 					<b><u>Приготовление</u></b>
 					${foundRecipe[0].cook}
@@ -85,10 +82,10 @@ async function searchRecipe(query, bot, handleChat) {
 		}
 	}
 
-	async function getTitle() {
+	async function getTitle(recievedQuery) {
 		bot.removeAllListeners();
 		const nextStep = getIngredients;
-		if (!query.message.sticker) {
+		if (!query.message.sticker && !recievedQuery) {
 			await bot.editMessageText("Введите название блюда", {
 				chat_id: chatId,
 				message_id: query.message.message_id,
