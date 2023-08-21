@@ -18,28 +18,38 @@ async function createRecipe(query, bot, handleChat) {
 			rating: null,
 			ratingIterator: 0,
 			link: "",
-			author: "",
+			author: query.user.username,
+			anonymously: false,
 			moderating: true,
 		})
 	}
 	const recipe = recipeBlank();
+	console.log(query.user.username);
 
 	async function handleBtns(query, nextStep) {
-		if (query.data === "skip") {
-			nextStep();
-		}
-		if (query.data === "decline") {
-			await bot.editMessageText("Рецепт удален", {
-				chat_id: chatId,
-				message_id: query.message.message_id,
-				reply_markup: {
-					inline_keyboard: [
-						[{ text: "Добавить рецепт 📝", callback_data: "addRecipe" }],
-						[{ text: "Поиск 🔎", callback_data: "searchRecipe" }]
-					]
-				}
-			})
-			handleChat();
+		switch (query.data) {
+			case "skip":
+				nextStep();
+				break;
+			case "decline":
+				await bot.editMessageText("Рецепт удален", {
+					chat_id: chatId,
+					message_id: query.message.message_id,
+					reply_markup: {
+						inline_keyboard: [
+							[{ text: "Добавить рецепт 📝", callback_data: "addRecipe" }],
+							[{ text: "Поиск 🔎", callback_data: "searchRecipe" }]
+						]
+					}
+				})
+				handleChat();
+				break;
+			case "hideUsername":
+				recipe.anonymously = true;
+				pushRecipe()
+				break;
+			case "showUsername":
+				pushRecipe()
 		}
 		bot.answerCallbackQuery(query.id);
 	}
@@ -56,7 +66,7 @@ async function createRecipe(query, bot, handleChat) {
 	async function setTitle() {
 		const nextStep = setType;
 		if (!query.message.sticker) {
-			bot.editMessageText("Шаг 1 из 5(9): Введите название блюда", {
+			bot.editMessageText("Шаг 1 из 5(10): Введите название блюда", {
 				chat_id: chatId,
 				message_id: query.message.message_id,
 				reply_markup: {
@@ -86,7 +96,7 @@ async function createRecipe(query, bot, handleChat) {
 	async function setType() {
 		bot.removeAllListeners();
 		let multipleChoice = false;
-		await bot.sendMessage(chatId, "Шаг 2 из 5(9): Укажите тип блюда (можно выбрать несколько)", {
+		await bot.sendMessage(chatId, "Шаг 2 из 5(10): Укажите тип блюда (можно выбрать несколько)", {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Завтрак", callback_data: "breakfast" }, { text: "Закуска", callback_data: "snack" }, { text: "Напиток", callback_data: "drink" }],
@@ -106,7 +116,7 @@ async function createRecipe(query, bot, handleChat) {
 
 	async function setIngredients() {
 		bot.removeListener("callback_query");
-		await bot.sendMessage(chatId, `Шаг 3 из 5(9): Ингредиенты и их количество перечислите через запятую, например: "мука 100г, яйца 2шт"`, {
+		await bot.sendMessage(chatId, `Шаг 3 из 5(10): Ингредиенты и их количество перечислите через запятую, например: "мука 100г, яйца 2шт"`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Отменить", callback_data: "decline" }]
@@ -177,7 +187,7 @@ async function createRecipe(query, bot, handleChat) {
 
 	async function setProcess() {
 		bot.removeAllListeners();
-		await bot.sendMessage(chatId, `Шаг 4 из 5(9): Опишите процесс приготовления`, {
+		await bot.sendMessage(chatId, `Шаг 4 из 5(10): Опишите процесс приготовления`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Отменить", callback_data: "decline" }]
@@ -195,7 +205,7 @@ async function createRecipe(query, bot, handleChat) {
 
 	async function setTime() {
 		bot.removeAllListeners();
-		await bot.sendMessage(chatId, `Шаг 5 из 5(9): Введите время приготовления в минутах, например: 25`, {
+		await bot.sendMessage(chatId, `Шаг 5 из 5(10): Введите время приготовления в минутах, например: 25`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Отменить", callback_data: "decline" }]
@@ -212,10 +222,9 @@ async function createRecipe(query, bot, handleChat) {
 	}
 
 	async function setImg() {
-		const nextStep = setOrigin;
 		bot.removeAllListeners();
 		await bot.sendMessage(chatId, "Картинки пока не обрабатываются, этот шаг пропускаем")
-		await bot.sendMessage(chatId, `Шаг 6 из 5(9): Прикрепите изображение`, {
+		await bot.sendMessage(chatId, `Шаг 6 из 5(10): Прикрепите изображение`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Пропустить", callback_data: "skip" }],
@@ -231,14 +240,13 @@ async function createRecipe(query, bot, handleChat) {
 			}
 		});
 		bot.on("callback_query", async query => {
-			handleBtns(query, nextStep);
+			handleBtns(query, setOrigin);
 		})
 	}
 
 	async function setOrigin() {
-		const nextStep = setDifficulty;
 		bot.removeAllListeners();
-		await bot.sendMessage(chatId, `Шаг 7 из 5(9): Введите страну происхождения блюда`, {
+		await bot.sendMessage(chatId, `Шаг 7 из 5(10): Введите страну происхождения блюда`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Пропустить", callback_data: "skip" }],
@@ -251,14 +259,13 @@ async function createRecipe(query, bot, handleChat) {
 			nextStep();
 		})
 		bot.on("callback_query", async query => {
-			handleBtns(query, nextStep);
+			handleBtns(query, setDifficulty);
 		})
 	}
 
 	async function setDifficulty() {
-		const nextStep = setLink;
 		bot.removeAllListeners();
-		await bot.sendMessage(chatId, `Шаг 8 из 5(9): Укажите сложность приготовления`, {
+		await bot.sendMessage(chatId, `Шаг 8 из 5(10): Укажите сложность приготовления`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Отменить", callback_data: "decline" }],
@@ -271,14 +278,13 @@ async function createRecipe(query, bot, handleChat) {
 			nextStep();
 		});
 		bot.on("callback_query", async query => {
-			handleBtns(query, nextStep);
+			handleBtns(query, setLink);
 		})
 	}
 
 	async function setLink() {
-		const nextStep = pushRecipe;
 		bot.removeAllListeners();
-		await bot.sendMessage(chatId, `Шаг 9 из 5(9): Прикрепите ссылку на рецепт`, {
+		await bot.sendMessage(chatId, `Шаг 9 из 5(10): Прикрепите ссылку на рецепт`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Отменить", callback_data: "decline" }],
@@ -291,12 +297,29 @@ async function createRecipe(query, bot, handleChat) {
 			nextStep();
 		})
 		bot.on("callback_query", async query => {
-			handleBtns(query, nextStep);
+			handleBtns(query, setAuthorship);
+		})
+	}
+
+	async function setAuthorship() {
+		bot.removeAllListeners();
+		await bot.sendMessage(chatId, `Шаг 10 из 5(10): Показать/скрыть Username на странице рецепта?`, {
+			reply_markup: {
+				inline_keyboard: [
+					[{ text: "Отменить", callback_data: "decline" }],
+					[{ text: "Показать", callback_data: "showUsername" }],
+					[{ text: "Скрыть", callback_data: "hideUsername" }],
+				]
+			}
+		});
+		bot.on("callback_query", async query => {
+			handleBtns(query);
 		})
 	}
 
 	async function pushRecipe() {
-		// await Recipe.create(recipe);
+		bot.removeAllListeners();
+		await Recipe.create(recipe);
 		await bot.sendMessage(chatId,
 			`<b>${recipe.title}</b>
 				
@@ -305,8 +328,8 @@ async function createRecipe(query, bot, handleChat) {
 				
 				<b><u>Приготовление</u></b>
 				${recipe.cook}
-				${recipe.link}
-				${recipe.tags}`,
+				${recipe.link ? `<a href=${recipe.link}>Link</a>` : ""}
+				`,
 			{ parse_mode: "HTML" });
 		await bot.sendMessage(chatId, `Рецепт добавлен`, {
 			reply_markup: {
@@ -316,7 +339,6 @@ async function createRecipe(query, bot, handleChat) {
 				]
 			}
 		});
-		bot.removeListener("message");
 		handleChat();
 	}
 

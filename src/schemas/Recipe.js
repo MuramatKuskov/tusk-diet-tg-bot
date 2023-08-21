@@ -14,6 +14,7 @@ const Recipe = new mongoose.Schema({
 	rating: Number,
 	ratingIterator: { type: Number, default: 0 },
 	author: { type: String, required: false },
+	anonymously: { type: Boolean, required: true },
 	link: String,
 	moderating: { type: Boolean, required: true },
 });

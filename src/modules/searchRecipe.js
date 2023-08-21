@@ -48,6 +48,7 @@ async function searchRecipe(query, bot, handleChat) {
 				const foundRecipe = await Recipe.aggregate(pipeline);
 				const answer = foundRecipe.length ?
 					`<b>${foundRecipe[0].title.charAt(0).toUpperCase() + foundRecipe[0].title.slice(1)}</b>
+
 					<b><u>Ингредиенты</u></b>
 					${foundRecipe[0].ingredients.map((el, i) => {
 						return foundRecipe[0].quantities[i] ?
@@ -55,11 +56,12 @@ async function searchRecipe(query, bot, handleChat) {
 							:
 							`\n${el.charAt(0).toUpperCase()}${el.slice(1)}`
 					})}
+					
 					<b><u>Приготовление</u></b>
 					${foundRecipe[0].cook}
-					${foundRecipe[0].link || ""}`
+					${foundRecipe[0].link ? `<a href=${foundRecipe[0].link}>Link</a>` : ""}`
 					:
-					"Здесь пока ничего нет";
+					"По указанному запросу ничего не найдено";
 
 				await bot.editMessageText(answer, {
 					chat_id: chatId,
