@@ -69,6 +69,7 @@ module.exports = app => {
 
 			const data = await Recipe.aggregate(pipeline);
 
+			res.set('Access-Control-Allow-Origin', process.env.FrontURL);
 			return res.json(data);
 		} catch (e) {
 			console.log(e);
