@@ -14,6 +14,7 @@ const healthCheck = require('./endpoints/healthCheck.js');
 
 const token = process.env.token.replace(/'/g, '');
 const DB_URL = process.env.DB_URL;
+const PORT = process.env.PORT || 8080;
 
 // Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(token, { polling: true });
@@ -66,7 +67,9 @@ async function handleChat() {
 	});
 };
 
-const PORT = 8080;
+app.get('/', async (req, res) => {
+	return res.json('Hello, World!');
+})
 
 async function startServer() {
 	try {
