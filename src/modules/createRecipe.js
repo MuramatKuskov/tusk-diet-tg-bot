@@ -45,10 +45,10 @@ async function createRecipe(query, bot, handleChat) {
 				break;
 			case "hideUsername":
 				recipe.anonymously = true;
-				pushRecipe()
+				pushRecipe();
 				break;
 			case "showUsername":
-				pushRecipe()
+				pushRecipe();
 		}
 		bot.answerCallbackQuery(query.id);
 	}
@@ -326,9 +326,9 @@ async function createRecipe(query, bot, handleChat) {
 			`<b>${recipe.title.charAt(0).toUpperCase() + recipe.title.slice(1)}</b>
 				
 				<b><u>Ингредиенты</u></b>
-				${foundRecipe[0].ingredients.map((el, i) => {
-				return foundRecipe[0].quantities[i] ?
-					`\n${el.charAt(0).toUpperCase()}${el.slice(1)} — ${foundRecipe[0].quantities[i]}${foundRecipe[0].units[i]}`
+				${recipe.ingredients.map((el, i) => {
+				return recipe.quantities[i] ?
+					`\n${el.charAt(0).toUpperCase()}${el.slice(1)} — ${recipe.quantities[i]}${recipe.units[i]}`
 					:
 					`\n${el.charAt(0).toUpperCase()}${el.slice(1)}`
 			})}

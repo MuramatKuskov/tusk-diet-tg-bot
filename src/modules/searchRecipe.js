@@ -59,7 +59,7 @@ async function searchRecipe(query, bot, handleChat) {
 					
 					<b><u>Приготовление</u></b>
 					${foundRecipe[0].cook}
-					<a href="${foundRecipe[0].link}">Link</a>`
+					${foundRecipe[0].link && `<a href="${foundRecipe[0].link}">Link</a>`}`
 					:
 					"По указанному запросу ничего не найдено";
 
