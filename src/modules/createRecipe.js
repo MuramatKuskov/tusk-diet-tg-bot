@@ -115,7 +115,7 @@ async function createRecipe(query, bot, handleChat) {
 
 	async function setIngredients() {
 		bot.removeListener("callback_query");
-		await bot.sendMessage(chatId, `Шаг 3 из 5(10): Ингредиенты и их количество перечислите через запятую, например: "мука 100г, яйца 2шт"`, {
+		await bot.sendMessage(chatId, `Шаг 3 из 5(10): Перечислите ингредиенты в следующем виде: "Мука 100г, яйца 2 шт, соль 0.25 ч.л., растительное-масло"`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Отменить", callback_data: "decline" }]
@@ -130,6 +130,7 @@ async function createRecipe(query, bot, handleChat) {
 			const rawIngredients = msg.text.split(",").map(el => { return el.trim().split(" ") });
 			// разбиваем 2 строку каждого подмассива, получаем массив [["product", +quantity, "unit"], ...]
 			rawIngredients.forEach((el, index) => {
+				// если указано только наименование продукта
 				if (rawIngredients[index].length === 1) {
 					return rawIngredients[index] = ([
 						rawIngredients[index][0].replace(/-/g, " "),
@@ -137,9 +138,11 @@ async function createRecipe(query, bot, handleChat) {
 						""
 					])
 				}
+				// указано наименование + кол-во
 				if (rawIngredients[index].length > 2) {
 					return rawIngredients[index][1] = +rawIngredients[index][1]
 				}
+				// указаны наименование, кол-во и единицы измерения
 				rawIngredients[index] = ([
 					rawIngredients[index][0].replace(/-/g, " "),		// "product"
 					+/\d+/.exec(el),											// +quantity
@@ -274,7 +277,7 @@ async function createRecipe(query, bot, handleChat) {
 		});
 		bot.on("message", async (msg) => {
 			setRecipe({ difficulty: msg.text.toLowerCase() });
-			nextStep();
+			setLink();
 		});
 		bot.on("callback_query", async query => {
 			handleBtns(query, setLink);
@@ -293,7 +296,7 @@ async function createRecipe(query, bot, handleChat) {
 		});
 		bot.on("message", async (msg) => {
 			setRecipe({ link: msg.text });
-			nextStep();
+			setAuthorship();
 		})
 		bot.on("callback_query", async query => {
 			handleBtns(query, setAuthorship);
@@ -320,10 +323,15 @@ async function createRecipe(query, bot, handleChat) {
 		bot.removeAllListeners();
 		await Recipe.create(recipe);
 		await bot.sendMessage(chatId,
-			`<b>${recipe.title}</b>
+			`<b>${recipe.title.charAt(0).toUpperCase() + recipe.title.slice(1)}</b>
 				
 				<b><u>Ингредиенты</u></b>
-				${recipe.ingredients}
+				${foundRecipe[0].ingredients.map((el, i) => {
+				return foundRecipe[0].quantities[i] ?
+					`\n${el.charAt(0).toUpperCase()}${el.slice(1)} — ${foundRecipe[0].quantities[i]}${foundRecipe[0].units[i]}`
+					:
+					`\n${el.charAt(0).toUpperCase()}${el.slice(1)}`
+			})}
 				
 				<b><u>Приготовление</u></b>
 				${recipe.cook}
