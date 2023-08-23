@@ -106,6 +106,7 @@ async function createRecipe(query, bot, handleChat) {
 			}
 		});
 		await bot.on("callback_query", async query => {
+			console.log("btn");
 			if (query.data === "decline") return handleBtns(query);
 			if (!recipe.ingredients.includes(query.data)) setRecipe({ type: query.data });
 			if (!multipleChoice) setIngredients();
@@ -114,7 +115,6 @@ async function createRecipe(query, bot, handleChat) {
 	}
 
 	async function setIngredients() {
-		bot.removeListener("callback_query");
 		await bot.sendMessage(chatId, `Шаг 3 из 5(10): Перечислите ингредиенты в следующем виде: "Мука 100г, яйца 2 шт, соль 0.25 ч.л., растительное-масло"`, {
 			reply_markup: {
 				inline_keyboard: [
