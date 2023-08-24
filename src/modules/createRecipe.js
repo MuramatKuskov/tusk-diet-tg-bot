@@ -106,7 +106,6 @@ async function createRecipe(query, bot, handleChat) {
 			}
 		});
 		await bot.on("callback_query", async query => {
-			console.log("btn");
 			if (query.data === "decline") return handleBtns(query);
 			if (!recipe.ingredients.includes(query.data)) setRecipe({ type: query.data });
 			if (!multipleChoice) setIngredients();
@@ -115,7 +114,7 @@ async function createRecipe(query, bot, handleChat) {
 	}
 
 	async function setIngredients() {
-		await bot.sendMessage(chatId, `Шаг 3 из 5(10): Перечислите ингредиенты в следующем виде: "Мука 100г, яйца 2 шт, соль 0.25 ч.л., растительное-масло"`, {
+		await bot.sendMessage(chatId, `Шаг 3 из 5(10): Перечислите ингредиенты следующим образом: "Растительное-масло, мука 100г, яйца 2 шт, соль 0.25 ч.л."`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Отменить", callback_data: "decline" }]
@@ -238,7 +237,7 @@ async function createRecipe(query, bot, handleChat) {
 		bot.on("message", async (msg) => {
 			if (msg.photo) {
 				setRecipe({ img: "" })
-				nextStep();
+				setOrigin();
 			}
 		});
 		bot.on("callback_query", async query => {
@@ -258,7 +257,7 @@ async function createRecipe(query, bot, handleChat) {
 		});
 		bot.on("message", async (msg) => {
 			setRecipe({ origin: msg.text.toLowerCase() });
-			nextStep();
+			setDifficulty();
 		})
 		bot.on("callback_query", async query => {
 			handleBtns(query, setDifficulty);
