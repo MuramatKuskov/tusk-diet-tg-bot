@@ -17,8 +17,8 @@ const DB_URL = process.env.DB_URL;
 const PORT = process.env.PORT || 8080;
 
 // Create a bot that uses 'polling' to fetch new updates
-// const bot = new TelegramBot(token, { polling: true });
-const bot = new TelegramBot(process.env.debugToken, { polling: true });
+const bot = new TelegramBot(token, { polling: true });
+// const bot = new TelegramBot(process.env.debugToken, { polling: true });
 
 const app = express();
 // middleware парсить жсон
