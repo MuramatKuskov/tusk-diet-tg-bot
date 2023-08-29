@@ -43,24 +43,6 @@ async function handleChat() {
 
 	bot.on("message", async (msg) => {
 		const chatId = msg.chat.id;
-		console.log(msg.web_app_data || "no web app data");
-		if (msg.web_app_data?.length) {
-			return await bot.sendMessage(chatId,
-				`<b>Список покупок</b>
-				${msg.web_app_data.map(el => {
-					return `\n${el.name} ${el.quantity || ""} ${el.unit || ""}`
-				})}
-				`,
-				{
-					parse_mode: "HTML", reply_markup: {
-						inline_keyboard: [
-							[{ text: "Добавить рецепт 📝", callback_data: "addRecipe" }],
-							[{ text: "Поиск 🔎", callback_data: "searchRecipe" }]
-						]
-					}
-				}
-			)
-		}
 		if (msg.text !== "/start") {
 			return await bot.sendMessage(chatId, "Начать общение с ботом: /start", { reply_markup: { inline_keyboard: [[{ text: "Start", callback_data: "start" }]] } });
 		}
