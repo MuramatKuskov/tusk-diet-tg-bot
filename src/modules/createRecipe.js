@@ -114,7 +114,7 @@ async function createRecipe(query, bot, handleChat) {
 	}
 
 	async function setIngredients() {
-		await bot.sendMessage(chatId, `Шаг 3 из 5(10): Перечислите ингредиенты следующим образом: "Растительное-масло, мука 100г, яйца 2 шт, соль 0.25 ч.л."`, {
+		await bot.sendMessage(chatId, `Шаг 3 из 5(10): Перечислите ингредиенты следующим образом: "Помидоры-в-собственном-соку, растительное-масло, яйца 2шт, соль 0.25 ч.л."`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Отменить", callback_data: "decline" }]
@@ -247,7 +247,7 @@ async function createRecipe(query, bot, handleChat) {
 
 	async function setOrigin() {
 		bot.removeAllListeners();
-		await bot.sendMessage(chatId, `Шаг 7 из 5(10): Введите страну происхождения блюда`, {
+		await bot.sendMessage(chatId, `Шаг 7 из 5(10): Введите страну/регион происхождения блюда`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Пропустить", callback_data: "skip" }],

@@ -17,8 +17,8 @@ const DB_URL = process.env.DB_URL;
 const PORT = process.env.PORT || 8080;
 
 // Create a bot that uses 'polling' to fetch new updates
-const bot = new TelegramBot(token, { polling: true });
-// const bot = new TelegramBot(process.env.debugToken, { polling: true });
+// const bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(process.env.debugToken, { polling: true });
 
 const app = express();
 // middleware парсить жсон
@@ -43,6 +43,23 @@ async function handleChat() {
 
 	bot.on("message", async (msg) => {
 		const chatId = msg.chat.id;
+		if (msg.web_app_data?.length) {
+			return await bot.sendMessage(chatId,
+				`<b>Список покупок</b>
+				${msg.web_app_data.map(el => {
+					return `\n${el.name} ${el.quantity || ""} ${el.unit || ""}`
+				})}
+				`,
+				{
+					parse_mode: "HTML", reply_markup: {
+						inline_keyboard: [
+							[{ text: "Добавить рецепт 📝", callback_data: "addRecipe" }],
+							[{ text: "Поиск 🔎", callback_data: "searchRecipe" }]
+						]
+					}
+				}
+			)
+		}
 		if (msg.text !== "/start") {
 			return await bot.sendMessage(chatId, "Начать общение с ботом: /start", { reply_markup: { inline_keyboard: [[{ text: "Start", callback_data: "start" }]] } });
 		}
