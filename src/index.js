@@ -43,6 +43,7 @@ async function handleChat() {
 
 	bot.on("message", async (msg) => {
 		const chatId = msg.chat.id;
+		console.log(msg.web_app_data || "no web app data");
 		if (msg.web_app_data?.length) {
 			return await bot.sendMessage(chatId,
 				`<b>Список покупок</b>
