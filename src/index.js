@@ -3,14 +3,16 @@ const TelegramBot = require('node-telegram-bot-api');
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const Recipe = require('./schemas/Recipe.js');
 require('dotenv').config();
 // свои импорты
+// модули чата
 const createRecipe = require('./modules/createRecipe');
+const searchRecipe = require('./modules/searchRecipe.js');
+// эндпоинты
 const pushRecipe = require('./endpoints/pushRecipe.js');
 const getRecipes = require('./endpoints/getRecipes.js');
-const searchRecipe = require('./modules/searchRecipe.js');
 const healthCheck = require('./endpoints/healthCheck.js');
+const sendListMsg = require('./endpoints/sendListMsg.js');
 
 const token = process.env.token.replace(/'/g, '');
 const DB_URL = process.env.DB_URL;
@@ -23,7 +25,7 @@ const bot = new TelegramBot(token, { polling: true });
 const app = express();
 // middleware парсить жсон
 app.use(express.json());
-// mw для кроссдоменных запросов (для облачного бэка)
+// mw для кроссдоменных запросов
 app.use(cors());
 
 async function handleChat() {
@@ -81,6 +83,7 @@ async function startServer() {
 		pushRecipe(app);
 		getRecipes(app);
 		healthCheck(app);
+		sendListMsg(app, bot, chatId);
 	} catch (e) {
 		console.log(e);
 	}
