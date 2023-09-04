@@ -83,7 +83,7 @@ async function startServer() {
 		pushRecipe(app);
 		getRecipes(app);
 		healthCheck(app);
-		sendListMsg(app, bot, chatId);
+		sendListMsg(app, bot);
 	} catch (e) {
 		console.log(e);
 	}
