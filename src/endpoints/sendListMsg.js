@@ -1,6 +1,7 @@
 module.exports = (app, bot) => {
 	app.post('/sendListMsg', async (req, res) => {
 		const { queryId, shoppingList } = req.body;
+		console.log(queryId);
 		await bot.answerWebAppQuery(queryId, {
 			type: 'article',
 			title: 'Список покупок',
@@ -12,6 +13,7 @@ module.exports = (app, bot) => {
 				]
 			}
 		})
+		console.log('done');
 		res.set('Access-Control-Allow-Origin', process.env.FrontURL);
 		return res.json('nice');
 	});
