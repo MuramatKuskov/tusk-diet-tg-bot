@@ -1,5 +1,5 @@
 module.exports = (app, bot) => {
-	app.get('/sendListMsg', async (req, res) => {
+	app.post('/sendListMsg', async (req, res) => {
 		const { queryId, shoppingList } = req.body;
 		await bot.answerWebAppQuery(queryId, {
 			type: 'article',
