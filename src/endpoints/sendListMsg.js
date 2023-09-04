@@ -6,7 +6,9 @@ module.exports = (app, bot) => {
 			type: 'article',
 			id: Math.floor(Math.random() * Date.now()),
 			title: 'Список покупок',
-			input_message_content: shoppingList.join(",\n"),
+			input_message_content: {
+				message_text: shoppingList.join(",\n")
+			},
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Добавить рецепт 📝", callback_data: "addRecipe" }],
