@@ -8,7 +8,7 @@ module.exports = (app, bot) => {
 			input_message_content: {
 				message_text: shoppingList.map(entry => {
 					return `${entry.name} ${entry.quantity || ""} ${entry.unit || ""}`
-				})
+				}).join(",\n")
 			}
 		})
 		res.set('Access-Control-Allow-Origin', process.env.FrontURL);
