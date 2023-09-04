@@ -4,6 +4,7 @@ module.exports = (app, bot) => {
 		console.log(queryId);
 		await bot.answerWebAppQuery(queryId, {
 			type: 'article',
+			id: Math.floor(Math.random() * Date.now()),
 			title: 'Список покупок',
 			input_message_content: shoppingList.join(",\n"),
 			reply_markup: {
