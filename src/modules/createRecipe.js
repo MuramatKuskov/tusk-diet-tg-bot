@@ -334,7 +334,7 @@ async function createRecipe(query, bot, handleChat) {
 				
 				<b><u>Приготовление</u></b>
 				${recipe.cook}
-				${recipe.link ? `<a href=${recipe.link}>Link</a>` : ""}
+				${recipe.link ?? `<a href=${recipe.link}>Link</a>`}
 				`,
 			{ parse_mode: "HTML" });
 		await bot.sendMessage(chatId, `Рецепт добавлен`, {
