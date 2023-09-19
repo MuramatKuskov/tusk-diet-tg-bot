@@ -13,6 +13,9 @@ const pushRecipe = require('./endpoints/pushRecipe.js');
 const getRecipes = require('./endpoints/getRecipes.js');
 const healthCheck = require('./endpoints/healthCheck.js');
 const sendListMsg = require('./endpoints/sendListMsg.js');
+const getUser = require('./endpoints/getUser');
+const createUser = require('./endpoints/createUser');
+const User = require('./schemas/User');
 
 const token = process.env.token.replace(/'/g, '');
 const DB_URL = process.env.DB_URL;
@@ -48,6 +51,21 @@ async function handleChat() {
 		if (msg.text !== "/start") {
 			return await bot.sendMessage(chatId, "Начать общение с ботом: /start", { reply_markup: { inline_keyboard: [[{ text: "Start", callback_data: "start" }]] } });
 		}
+
+		User.aggregate([{
+			$search: {
+				index: 'username',
+				text: {
+					path: 'name',
+					query: msg.chat.username
+				}
+			}
+		}]).then(data => {
+			if (!data.length) {
+				User.create({ name: msg.chat.username })
+			}
+		});
+
 		greet(chatId);
 	})
 
@@ -84,6 +102,8 @@ async function startServer() {
 		getRecipes(app);
 		healthCheck(app);
 		sendListMsg(app, bot);
+		getUser(app);
+		createUser(app);
 	} catch (e) {
 		console.log(e);
 	}
