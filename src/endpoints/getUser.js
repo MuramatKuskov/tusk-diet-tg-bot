@@ -13,7 +13,7 @@ module.exports = app => {
 				}
 			}]);
 
-			res.set('Access-Control-Allow-Origin', process.env.FrontURL, /* "http://localhost:3000/" */);
+			// res.set('Access-Control-Allow-Origin', process.env.FrontURL);
 			return res.json(data);
 		} catch (e) {
 			console.log(e);

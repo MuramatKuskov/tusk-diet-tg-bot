@@ -17,30 +17,77 @@ module.exports = app => {
 				})
 			};
 
-			if (!req.query.title && req.query.ingredients) {
-				pipeline.push({
-					$search: {
-						index: "ingredients",
-						text: {
-							path: "ingredients",
-							query: req.query.ingredients.split(',')
+			if (req.query.ingredients) {
+				const ingredients = req.query.ingredients
+					.split(',')
+					.map((item) => item.trim())
+					.filter((item) => item.length > 0);
+
+				let matchQuery = {};
+				const searchQuery = ingredients.join(' ');
+
+
+				if (!req.query.mode) {
+					// temporarily set mode to discovery if not provided
+					// while releasing new Frontend version
+					req.query.mode = "discovery";
+				}
+				/* if (req.query.mode === "discovery") {
+					// match any recipe that contain some of the ingredients
+					matchQuery = { ingredients: { $in: ingredients } };
+				} else */ if (req.query.mode === "accessible") {
+					// match only available ingredients
+					matchQuery = {
+						$expr: {
+							$allElementsTrue: {
+								$map: {
+									input: '$ingredients',
+									as: 'ingredient',
+									in: { $in: ['$$ingredient', ingredients] },
+								},
+							},
+						},
+					};
+				} else if (req.query.mode === "precise") {
+					// match exactly the ingredients
+					matchQuery = {
+						$expr: { $eq: [{ $setDifference: ['$ingredients', ingredients] }, []] }
+					};
+				} /* else if (req.query.mode === "backboned") {
+					// match at least all explicitly defined ingredients
+					matchQuery = { ingredients: { $all: ingredients } };
+				} */
+
+				if (!req.query.title && (req.query.mode === "discovery" || req.query.mode === "backboned")) {
+					pipeline.push({
+						$search: {
+							index: "ingredients",
+							text: {
+								path: "ingredients",
+								query: searchQuery,
+								// match recipes that contain all/some ingredients
+								// matchCriteria: (req.query.mode === "backboned" || req.query.mode === "precise") ? "all" : "any",
+								matchCriteria: req.query.mode === "discovery" ? "any" : "all",
+							}
 						}
-					}
-				})
+					});
+					// additional filters for accessible and precise modes
+					// if (req.query.mode === "accessible" || req.query.mode === "precise") {
+					// 	pipeline.push({
+					// 		$match: matchQuery,
+					// 	});
+					// }
+				} else {
+					pipeline.push({
+						$match: matchQuery
+					});
+				}
 			}
 
 			if (req.query.type && req.query.type != "all") {
 				pipeline.push({
 					$match: {
 						type: req.query.type
-					}
-				})
-			}
-
-			if (req.query.title && req.query.ingredients) {
-				pipeline.push({
-					$match: {
-						ingredients: { $all: req.query.ingredients.split(',') }
 					}
 				})
 			}
@@ -69,7 +116,7 @@ module.exports = app => {
 
 			const data = await Recipe.aggregate(pipeline);
 
-			res.set('Access-Control-Allow-Origin', process.env.FrontURL, /* "http://localhost:3000/" */);
+			// res.set('Access-Control-Allow-Origin', process.env.FrontURL);
 			return res.json(data);
 		} catch (e) {
 			console.log(e);

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const Recipe = new mongoose.Schema({
-	img: String,
+	img: { type: String, default: "https://cdn-icons-png.flaticon.com/512/857/857681.png" },
 	title: { type: String, required: true },
 	origin: String,
 	type: { type: [String], required: true },

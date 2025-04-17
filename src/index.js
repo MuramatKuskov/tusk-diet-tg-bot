@@ -29,12 +29,14 @@ const app = express();
 // middleware парсить жсон
 app.use(express.json());
 // mw для кроссдоменных запросов
-app.use(cors());
+app.use(cors({
+	origin: process.env.FrontURL,
+}));
 
 async function handleChat() {
 	bot.removeAllListeners();
 	async function greet(chatId) {
-		await bot.sendMessage(chatId, 'Wtf do you looking for?');
+		await bot.sendMessage(chatId, 'Yo, chief! Ready to cook? 🍳');
 		await bot.sendSticker(chatId, 'https://tlgrm.eu/_/stickers/c36/1c0/c361c044-f105-45f1-ba01-33626dfc1d57/9.webp', {
 			// в данном случае нажатие кнопки вернет ее текст
 			reply_markup: {

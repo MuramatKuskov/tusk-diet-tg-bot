@@ -11,7 +11,7 @@ module.exports = (app, bot) => {
 				}).join(",\n")
 			}
 		})
-		res.set('Access-Control-Allow-Origin', process.env.FrontURL);
+		// res.set('Access-Control-Allow-Origin', process.env.FrontURL);
 		return res.json('nice');
 	});
 }

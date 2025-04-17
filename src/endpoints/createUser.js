@@ -5,7 +5,7 @@ module.exports = app => {
 		try {
 			await User.create({ name: req.body.username })
 
-			res.set('Access-Control-Allow-Origin', process.env.FrontURL, /* "http://localhost:3000/" */);
+			// res.set('Access-Control-Allow-Origin', process.env.FrontURL);
 			return res.json("User created");
 		} catch (e) {
 			console.log(e);
