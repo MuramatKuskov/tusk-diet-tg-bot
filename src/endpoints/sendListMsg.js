@@ -1,7 +1,7 @@
 module.exports = (app, bot) => {
 	app.post('/sendListMsg', async (req, res) => {
-		const { queryId, shoppingList } = req.body;
-		await bot.answerWebAppQuery(queryId, {
+		const { query_id, shoppingList } = req.body;
+		await bot.answerWebAppQuery(query_id, {
 			type: 'article',
 			id: Math.floor(Math.random() * Date.now()),
 			title: 'Список покупок',
@@ -10,8 +10,7 @@ module.exports = (app, bot) => {
 					return `${entry.name} ${entry.quantity || ""} ${entry.unit || ""}`
 				}).join(",\n")
 			}
-		})
-		// res.set('Access-Control-Allow-Origin', process.env.FrontURL);
+		});
 		return res.json('nice');
 	});
 }
