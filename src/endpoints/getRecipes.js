@@ -104,15 +104,19 @@ module.exports = app => {
 				})
 			}
 
-			/* if (req.query.project) {
-				pipeline.push({
-					$project: {
-						title: 1,
-						_id: 1,
-						rating: 1,
-					}
-				})
-			} */
+			pipeline.push({
+				$project: {
+					_id: 1,
+					img: 1,
+					origin: 1,
+					title: 1,
+					ingredients: 1,
+					type: 1,
+					rating: 1,
+					difficulty: 1,
+					time: 1,
+				}
+			});
 
 			const data = await Recipe.aggregate(pipeline);
 			return res.json(data);

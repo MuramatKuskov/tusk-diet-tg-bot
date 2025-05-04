@@ -1,14 +1,9 @@
 const mongoose = require('mongoose');
 
 const User = new mongoose.Schema({
-	name: { type: String, required: true },
-	createdRecipes: { type: [String], default: [] },
-	subscriptions: { type: [String], default: [] },
-	favourites: { type: [String], default: [] },
-	shoppingList: { type: String, default: "" },
-	// массив объектов выглядит страшно
-	// мб отдельную коллекцию для рейтингов и связывать ссылками?
-	ratings: { type: [Object], default: [] },
+	tgID: { type: Number, required: true },
+	username: { type: String, required: true },
+	createdRecipes: { type: [mongoose.Schema.Types.ObjectId], ref: "Recipe", default: [] },
 });
 
 

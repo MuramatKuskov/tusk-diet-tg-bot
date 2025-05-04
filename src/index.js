@@ -16,6 +16,8 @@ const sendListMsg = require('./endpoints/sendListMsg.js');
 const getUser = require('./endpoints/getUser');
 const createUser = require('./endpoints/createUser');
 const User = require('./schemas/User');
+const getRecipe = require('./endpoints/getRecipe.js');
+const sendRecipeMsg = require('./endpoints/sendRecipeMsg.js');
 
 const token = process.env.token.replace(/'/g, '');
 const DB_URL = process.env.DB_URL;
@@ -102,6 +104,8 @@ async function startServer() {
 		// эндпоинты
 		pushRecipe(app);
 		getRecipes(app);
+		getRecipe(app);
+		sendRecipeMsg(app, bot);
 		healthCheck(app);
 		sendListMsg(app, bot);
 		getUser(app);
