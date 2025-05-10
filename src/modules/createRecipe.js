@@ -1,29 +1,27 @@
 const Recipe = require("../schemas/Recipe");
 
-async function createRecipe(query, bot, handleChat) {
+async function createRecipe(query, handleChat) {
 	const chatId = query.message.chat.id;
 
-	const recipeBlank = () => {
-		return ({
-			img: "#",
-			title: "",
-			origin: "",
-			type: [],
-			ingredients: [],
-			quantities: [],
-			units: [],
-			cook: "",
-			difficulty: "",
-			time: 10,
-			rating: null,
-			ratingIterator: 0,
-			link: "",
-			author: query.from.username,
-			anonymously: false,
-			moderating: true,
-		})
-	}
-	const recipe = recipeBlank();
+	const recipeBlank = {
+		img: null,
+		title: "",
+		origin: "",
+		type: [],
+		ingredients: [],
+		quantities: [],
+		units: [],
+		cook: "",
+		difficulty: "",
+		time: 10,
+		rating: null,
+		ratingIterator: 0,
+		author: query.from.username,
+		anonymously: false,
+		moderating: true,
+		link: "",
+	};
+	let recipe = recipeBlank;
 
 	async function handleBtns(query, nextStep) {
 		switch (query.data) {
@@ -31,7 +29,7 @@ async function createRecipe(query, bot, handleChat) {
 				nextStep();
 				break;
 			case "decline":
-				await bot.editMessageText("Рецепт удален", {
+				await TG_BOT.editMessageText("Рецепт удален", {
 					chat_id: chatId,
 					message_id: query.message.message_id,
 					reply_markup: {
@@ -50,7 +48,7 @@ async function createRecipe(query, bot, handleChat) {
 			case "showUsername":
 				pushRecipe();
 		}
-		bot.answerCallbackQuery(query.id);
+		TG_BOT.answerCallbackQuery(query.id);
 	}
 
 	function setRecipe(params) {
@@ -65,7 +63,7 @@ async function createRecipe(query, bot, handleChat) {
 	async function setTitle() {
 		const nextStep = setType;
 		if (!query.message.sticker) {
-			bot.editMessageText("Шаг 1 из 5(10): Введите название блюда", {
+			TG_BOT.editMessageText("Шаг 1 из 5(10): Введите название блюда", {
 				chat_id: chatId,
 				message_id: query.message.message_id,
 				reply_markup: {
@@ -75,7 +73,7 @@ async function createRecipe(query, bot, handleChat) {
 				}
 			});
 		} else {
-			await bot.sendMessage(chatId, "Шаг 1 из 5(9): Введите название блюда", {
+			await TG_BOT.sendMessage(chatId, "Шаг 1 из 5(9): Введите название блюда", {
 				reply_markup: {
 					inline_keyboard: [
 						[{ text: "Отменить", callback_data: "decline" }]
@@ -83,19 +81,19 @@ async function createRecipe(query, bot, handleChat) {
 				}
 			});
 		}
-		bot.on("message", async msg => {
+		TG_BOT.on("message", async msg => {
 			setRecipe({ title: msg.text.toLowerCase(), author: msg.from.username });
 			nextStep();
 		});
-		bot.on("callback_query", async query => {
+		TG_BOT.on("callback_query", async query => {
 			handleBtns(query, nextStep);
 		})
 	}
 
 	async function setType() {
-		bot.removeAllListeners();
+		TG_BOT.removeAllListeners();
 		let multipleChoice = false;
-		await bot.sendMessage(chatId, "Шаг 2 из 5(10): Укажите тип блюда (можно выбрать несколько)", {
+		await TG_BOT.sendMessage(chatId, "Шаг 2 из 5(10): Укажите тип блюда (можно выбрать несколько)", {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Завтрак", callback_data: "breakfast" }, { text: "Закуска", callback_data: "snack" }, { text: "Напиток", callback_data: "drink" }],
@@ -105,7 +103,7 @@ async function createRecipe(query, bot, handleChat) {
 				]
 			}
 		});
-		await bot.on("callback_query", async query => {
+		await TG_BOT.on("callback_query", async query => {
 			if (query.data === "decline") return handleBtns(query);
 			if (!recipe.ingredients.includes(query.data)) setRecipe({ type: query.data });
 			if (!multipleChoice) setIngredients();
@@ -114,16 +112,16 @@ async function createRecipe(query, bot, handleChat) {
 	}
 
 	async function setIngredients() {
-		await bot.sendMessage(chatId, `Шаг 3 из 5(10): Перечислите ингредиенты следующим образом: "Помидоры-в-собственном-соку, растительное-масло, яйца 2шт, соль 0.25 ч.л."`, {
+		await TG_BOT.sendMessage(chatId, `Шаг 3 из 5(10): Перечислите ингредиенты следующим образом: "Помидоры-в-собственном-соку, растительное-масло, яйца 2шт, соль 0.25 ч.л."`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Отменить", callback_data: "decline" }]
 				]
 			}
 		});
-		bot.on("message", async (msg) => {
+		TG_BOT.on("message", async (msg) => {
 			// если юзер ввел ингредиенты, чистим прослушку с предыдущего шага
-			bot.removeListener("callback_query");
+			TG_BOT.removeListener("callback_query");
 
 			// получаем 2-мерный массив вида [["product", "quantity+unit"], ...]
 			const rawIngredients = msg.text.split(",").map(el => { return el.trim().split(" ") });
@@ -175,57 +173,57 @@ async function createRecipe(query, bot, handleChat) {
 				}
 			}])
 			if (duplicates.length) {
-				await bot.sendMessage(chatId,
+				await TG_BOT.sendMessage(chatId,
 					"Рецепт этого же типа, с похожим названием и ингредиентами уже есть в базе. Продолжайте, если уверены, что не дублируете существующий рецепт!"
 				)
 			}
 			setProcess();
 		});
-		bot.on("callback_query", async query => {
+		TG_BOT.on("callback_query", async query => {
 			handleBtns(query);
 		})
 	}
 
 	async function setProcess() {
-		bot.removeAllListeners();
-		await bot.sendMessage(chatId, `Шаг 4 из 5(10): Опишите процесс приготовления`, {
+		TG_BOT.removeAllListeners();
+		await TG_BOT.sendMessage(chatId, `Шаг 4 из 5(10): Опишите процесс приготовления`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Отменить", callback_data: "decline" }]
 				]
 			}
 		});
-		bot.on("message", async (msg) => {
+		TG_BOT.on("message", async (msg) => {
 			setRecipe({ cook: msg.text });
 			setTime();
 		});
-		bot.on("callback_query", async query => {
+		TG_BOT.on("callback_query", async query => {
 			handleBtns(query);
 		})
 	}
 
 	async function setTime() {
-		bot.removeAllListeners();
-		await bot.sendMessage(chatId, `Шаг 5 из 5(10): Введите время приготовления в минутах, например: 25`, {
+		TG_BOT.removeAllListeners();
+		await TG_BOT.sendMessage(chatId, `Шаг 5 из 5(10): Введите время приготовления в минутах, например: 25`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Отменить", callback_data: "decline" }]
 				]
 			}
 		});
-		bot.on("message", async (msg) => {
+		TG_BOT.on("message", async (msg) => {
 			setRecipe({ time: +/\d+/.exec(msg.text) });
 			setImg();
 		});
-		bot.on("callback_query", async query => {
+		TG_BOT.on("callback_query", async query => {
 			handleBtns(query);
 		})
 	}
 
 	async function setImg() {
-		bot.removeAllListeners();
-		await bot.sendMessage(chatId, "Картинки пока не обрабатываются, этот шаг пропускаем")
-		await bot.sendMessage(chatId, `Шаг 6 из 5(10): Прикрепите изображение`, {
+		TG_BOT.removeAllListeners();
+		await TG_BOT.sendMessage(chatId, "Картинки пока не обрабатываются, этот шаг пропускаем")
+		await TG_BOT.sendMessage(chatId, `Шаг 6 из 5(10): Прикрепите изображение`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Пропустить", callback_data: "skip" }],
@@ -234,20 +232,20 @@ async function createRecipe(query, bot, handleChat) {
 			}
 		});
 		// ожидается сообщение с картинкой
-		bot.on("message", async (msg) => {
+		TG_BOT.on("message", async (msg) => {
 			if (msg.photo) {
 				setRecipe({ img: "" })
 				setOrigin();
 			}
 		});
-		bot.on("callback_query", async query => {
+		TG_BOT.on("callback_query", async query => {
 			handleBtns(query, setOrigin);
 		})
 	}
 
 	async function setOrigin() {
-		bot.removeAllListeners();
-		await bot.sendMessage(chatId, `Шаг 7 из 5(10): Введите страну/регион происхождения блюда`, {
+		TG_BOT.removeAllListeners();
+		await TG_BOT.sendMessage(chatId, `Шаг 7 из 5(10): Введите страну/регион происхождения блюда`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Пропустить", callback_data: "skip" }],
@@ -255,18 +253,18 @@ async function createRecipe(query, bot, handleChat) {
 				]
 			}
 		});
-		bot.on("message", async (msg) => {
+		TG_BOT.on("message", async (msg) => {
 			setRecipe({ origin: msg.text.toLowerCase() });
 			setDifficulty();
 		})
-		bot.on("callback_query", async query => {
+		TG_BOT.on("callback_query", async query => {
 			handleBtns(query, setDifficulty);
 		})
 	}
 
 	async function setDifficulty() {
-		bot.removeAllListeners();
-		await bot.sendMessage(chatId, `Шаг 8 из 5(10): Укажите сложность приготовления`, {
+		TG_BOT.removeAllListeners();
+		await TG_BOT.sendMessage(chatId, `Шаг 8 из 5(10): Укажите сложность приготовления`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Отменить", callback_data: "decline" }],
@@ -274,18 +272,18 @@ async function createRecipe(query, bot, handleChat) {
 				]
 			}
 		});
-		bot.on("message", async (msg) => {
+		TG_BOT.on("message", async (msg) => {
 			setRecipe({ difficulty: msg.text.toLowerCase() });
 			setLink();
 		});
-		bot.on("callback_query", async query => {
+		TG_BOT.on("callback_query", async query => {
 			handleBtns(query, setLink);
 		})
 	}
 
 	async function setLink() {
-		bot.removeAllListeners();
-		await bot.sendMessage(chatId, `Шаг 9 из 5(10): Прикрепите ссылку на рецепт`, {
+		TG_BOT.removeAllListeners();
+		await TG_BOT.sendMessage(chatId, `Шаг 9 из 5(10): Прикрепите ссылку на рецепт`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Отменить", callback_data: "decline" }],
@@ -293,18 +291,18 @@ async function createRecipe(query, bot, handleChat) {
 				]
 			}
 		});
-		bot.on("message", async (msg) => {
+		TG_BOT.on("message", async (msg) => {
 			setRecipe({ link: msg.text });
 			setAuthorship();
 		})
-		bot.on("callback_query", async query => {
+		TG_BOT.on("callback_query", async query => {
 			handleBtns(query, setAuthorship);
 		})
 	}
 
 	async function setAuthorship() {
-		bot.removeAllListeners();
-		await bot.sendMessage(chatId, `Шаг 10 из 5(10): Показать/скрыть Username на странице рецепта?`, {
+		TG_BOT.removeAllListeners();
+		await TG_BOT.sendMessage(chatId, `Шаг 10 из 5(10): Показать/скрыть Username на странице рецепта?`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Отменить", callback_data: "decline" }],
@@ -313,15 +311,15 @@ async function createRecipe(query, bot, handleChat) {
 				]
 			}
 		});
-		bot.on("callback_query", async query => {
+		TG_BOT.on("callback_query", async query => {
 			handleBtns(query);
 		})
 	}
 
 	async function pushRecipe() {
-		bot.removeAllListeners();
+		TG_BOT.removeAllListeners();
 		await Recipe.create(recipe);
-		await bot.sendMessage(chatId,
+		await TG_BOT.sendMessage(chatId,
 			`<b>${recipe.title.charAt(0).toUpperCase() + recipe.title.slice(1)}</b>
 				
 				<b><u>Ингредиенты</u></b>
@@ -337,7 +335,7 @@ async function createRecipe(query, bot, handleChat) {
 				${recipe.link ?? `<a href=${recipe.link}>Link</a>`}
 				`,
 			{ parse_mode: "HTML" });
-		await bot.sendMessage(chatId, `Рецепт добавлен`, {
+		await TG_BOT.sendMessage(chatId, `Рецепт добавлен`, {
 			reply_markup: {
 				inline_keyboard: [
 					[{ text: "Добавить рецепт 📝", callback_data: "addRecipe" }],

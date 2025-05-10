@@ -1,11 +1,6 @@
 const Recipe = require("../schemas/Recipe");
 
-/* async function searchRecipe(chatId, bot, handleChat) {
-	await bot.sendMessage(chatId, 'Поиск будет, но не сразу. Афуф');
-	handleChat();
-} */
-
-async function searchRecipe(query, bot, handleChat) {
+async function searchRecipe(query, handleChat) {
 	const chatId = query.message.chat.id;
 	// в этот массив записываются типы блюд для поиска
 	let types = [];
@@ -15,8 +10,8 @@ async function searchRecipe(query, bot, handleChat) {
 		switch (query.data) {
 			case "decline":
 				pipeline = [];
-				bot.removeAllListeners();
-				await bot.editMessageText("Параметры поиска сброшены", {
+				TG_BOT.removeAllListeners();
+				await TG_BOT.editMessageText("Параметры поиска сброшены", {
 					chat_id: chatId,
 					message_id: query.message.message_id,
 					reply_markup: {
@@ -27,11 +22,11 @@ async function searchRecipe(query, bot, handleChat) {
 					}
 				});
 				handleChat();
-				bot.answerCallbackQuery(query.id);
+				TG_BOT.answerCallbackQuery(query.id);
 				break;
 			case "skip":
 				nextStep(query);
-				bot.answerCallbackQuery(query.id);
+				TG_BOT.answerCallbackQuery(query.id);
 				break;
 			case "find":
 				if (types.length) {
@@ -42,7 +37,7 @@ async function searchRecipe(query, bot, handleChat) {
 					})
 				}
 				if (!pipeline.length) {
-					bot.answerCallbackQuery(query.id);
+					TG_BOT.answerCallbackQuery(query.id);
 					return getTitle(query);
 				};
 				const foundRecipe = await Recipe.aggregate(pipeline);
@@ -63,7 +58,7 @@ async function searchRecipe(query, bot, handleChat) {
 					:
 					"По указанному запросу ничего не найдено";
 
-				await bot.editMessageText(answer, {
+				await TG_BOT.editMessageText(answer, {
 					chat_id: chatId,
 					message_id: query.message.message_id,
 					parse_mode: "HTML",
@@ -75,20 +70,20 @@ async function searchRecipe(query, bot, handleChat) {
 					}
 				});
 				handleChat();
-				bot.answerCallbackQuery(query.id);
+				TG_BOT.answerCallbackQuery(query.id);
 				break;
 			default:
 				if (!types.includes(query.data)) types.push(query.data);
-				bot.answerCallbackQuery(query.id);
+				TG_BOT.answerCallbackQuery(query.id);
 				break;
 		}
 	}
 
 	async function getTitle(recievedQuery) {
-		bot.removeAllListeners();
+		TG_BOT.removeAllListeners();
 		const nextStep = getIngredients;
 		if (!query.message.sticker && !recievedQuery) {
-			await bot.editMessageText("Введите название блюда", {
+			await TG_BOT.editMessageText("Введите название блюда", {
 				chat_id: chatId,
 				message_id: query.message.message_id,
 				reply_markup: {
@@ -100,7 +95,7 @@ async function searchRecipe(query, bot, handleChat) {
 				}
 			});
 		} else {
-			await bot.sendMessage(chatId, 'Введите название блюда', {
+			await TG_BOT.sendMessage(chatId, 'Введите название блюда', {
 				reply_markup: {
 					inline_keyboard: [[
 						{ text: "Отмена", callback_data: "decline" },
@@ -111,10 +106,10 @@ async function searchRecipe(query, bot, handleChat) {
 			});
 		}
 
-		bot.on("callback_query", async query => {
+		TG_BOT.on("callback_query", async query => {
 			handleCallback(query, nextStep)
 		});
-		bot.on("message", async msg => {
+		TG_BOT.on("message", async msg => {
 			pipeline.push({
 				$search: {
 					index: 'title',
@@ -129,10 +124,10 @@ async function searchRecipe(query, bot, handleChat) {
 	}
 
 	async function getIngredients(query) {
-		bot.removeAllListeners();
+		TG_BOT.removeAllListeners();
 		const nextStep = getType;
 		if (query) {
-			await bot.editMessageText("Перечислите ингредиенты", {
+			await TG_BOT.editMessageText("Перечислите ингредиенты", {
 				chat_id: chatId,
 				message_id: query.message.message_id,
 				reply_markup: {
@@ -144,7 +139,7 @@ async function searchRecipe(query, bot, handleChat) {
 				}
 			})
 		} else {
-			await bot.sendMessage(chatId, "Перечислите ингредиенты", {
+			await TG_BOT.sendMessage(chatId, "Перечислите ингредиенты", {
 				reply_markup: {
 					inline_keyboard: [[
 						{ text: "Отмена", callback_data: "decline" },
@@ -154,10 +149,10 @@ async function searchRecipe(query, bot, handleChat) {
 				}
 			});
 		}
-		bot.on("callback_query", async query => {
+		TG_BOT.on("callback_query", async query => {
 			handleCallback(query, nextStep)
 		});
-		bot.on("message", async msg => {
+		TG_BOT.on("message", async msg => {
 			const ingredients = msg.text.split(',').map(el => el.toLowerCase());
 			if (!pipeline.length) {
 				pipeline.push({
@@ -181,9 +176,9 @@ async function searchRecipe(query, bot, handleChat) {
 	}
 
 	async function getType(query) {
-		bot.removeAllListeners();
+		TG_BOT.removeAllListeners();
 		if (query) {
-			await bot.editMessageText("Укажите тип блюда (можно выбрать несколько)", {
+			await TG_BOT.editMessageText("Укажите тип блюда (можно выбрать несколько)", {
 				chat_id: chatId,
 				message_id: query.message.message_id,
 				reply_markup: {
@@ -197,7 +192,7 @@ async function searchRecipe(query, bot, handleChat) {
 				}
 			})
 		} else {
-			await bot.sendMessage(chatId, "Укажите тип блюда (можно выбрать несколько)", {
+			await TG_BOT.sendMessage(chatId, "Укажите тип блюда (можно выбрать несколько)", {
 				reply_markup: {
 					inline_keyboard: [
 						[{ text: "Завтрак", callback_data: "breakfast" }, { text: "Закуска", callback_data: "snack" }, { text: "Напиток", callback_data: "drink" }],
@@ -209,11 +204,11 @@ async function searchRecipe(query, bot, handleChat) {
 				}
 			});
 		};
-		bot.on("callback_query", async query => {
+		TG_BOT.on("callback_query", async query => {
 			handleCallback(query)
 		})
-		bot.on("message", async msg => {
-			await bot.sendMessage(chatId, "Для продолжения нажмите любую кнопку из сообщения выше")
+		TG_BOT.on("message", async msg => {
+			await TG_BOT.sendMessage(chatId, "Для продолжения нажмите любую кнопку из сообщения выше")
 		});
 	}
 

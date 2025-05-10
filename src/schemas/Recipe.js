@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const Recipe = new mongoose.Schema({
-	// use default image from assets on frontend
+	// use default image placeholder from assets on frontend
 	img: { type: String, default: "/assets/DishPlaceholder.png" },
 	title: { type: String, required: true },
 	origin: String,
@@ -16,8 +16,8 @@ const Recipe = new mongoose.Schema({
 	ratingIterator: { type: Number, default: 0 },
 	author: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: false },
 	anonymously: { type: Boolean, required: true },
-	link: String,
 	moderating: { type: Boolean, required: true },
+	link: String,
 });
 
 //Recipe.index({ title: 'text' }, { default_language: "russian" });

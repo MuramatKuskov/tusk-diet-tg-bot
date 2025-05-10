@@ -5,27 +5,16 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
 // свои импорты
-// модули чата
-const createRecipe = require('./modules/createRecipe');
-const searchRecipe = require('./modules/searchRecipe.js');
-// эндпоинты
-const pushRecipe = require('./endpoints/pushRecipe.js');
-const getRecipes = require('./endpoints/getRecipes.js');
-const healthCheck = require('./endpoints/healthCheck.js');
-const sendListMsg = require('./endpoints/sendListMsg.js');
-const getUser = require('./endpoints/getUser');
-const createUser = require('./endpoints/createUser');
-const User = require('./schemas/User');
-const getRecipe = require('./endpoints/getRecipe.js');
-const sendRecipeMsg = require('./endpoints/sendRecipeMsg.js');
+const router = require('./routes/index.js');
+const handleChat = require('./modules/handleChat.js');
 
 const token = process.env.token.replace(/'/g, '');
+// const token = process.env.debugToken;
 const DB_URL = process.env.DB_URL;
 const PORT = process.env.PORT || 8080;
 
 // Create a bot that uses 'polling' to fetch new updates
-const bot = new TelegramBot(token, { polling: true });
-// const bot = new TelegramBot(process.env.debugToken, { polling: true });
+global.TG_BOT = new TelegramBot(token, { polling: true });
 
 const app = express();
 // middleware парсить жсон
@@ -34,85 +23,16 @@ app.use(express.json());
 app.use(cors({
 	origin: process.env.FrontURL,
 }));
+app.use('/api', router);
 
-async function handleChat() {
-	bot.removeAllListeners();
-	async function greet(chatId) {
-		await bot.sendMessage(chatId, 'Yo, chief! Ready to cook? 🍳');
-		await bot.sendSticker(chatId, 'https://tlgrm.eu/_/stickers/c36/1c0/c361c044-f105-45f1-ba01-33626dfc1d57/9.webp', {
-			// в данном случае нажатие кнопки вернет ее текст
-			reply_markup: {
-				inline_keyboard: [
-					[{ text: "Добавить рецепт 📝", callback_data: "addRecipe" }],
-					[{ text: "Поиск 🔎", callback_data: "searchRecipe" }]
-				]
-			}
-		});
-	}
-
-	bot.on("message", async (msg) => {
-		const chatId = msg.chat.id;
-		if (msg.text !== "/start") {
-			return await bot.sendMessage(chatId, "Начать общение с ботом: /start", { reply_markup: { inline_keyboard: [[{ text: "Start", callback_data: "start" }]] } });
-		}
-
-		User.aggregate([{
-			$search: {
-				index: 'username',
-				text: {
-					path: 'name',
-					query: msg.chat.username
-				}
-			}
-		}]).then(data => {
-			if (!data.length) {
-				User.create({ name: msg.chat.username })
-			}
-		});
-
-		greet(chatId);
-	})
-
-	bot.on("callback_query", async query => {
-		switch (query.data) {
-			case "addRecipe":
-				bot.removeAllListeners();
-				createRecipe(query, bot, handleChat);
-				break;
-			case "searchRecipe":
-				bot.removeAllListeners();
-				searchRecipe(query, bot, handleChat);
-				break;
-			case "start":
-				greet(query.message.chat.id);
-				break;
-		}
-		// обязательно отвечаем на запрос
-		bot.answerCallbackQuery(query.id);
-	});
-};
-
-app.get('/', async (req, res) => {
-	return res.json('Hello, World!');
-})
-
-async function startServer() {
+async function main() {
 	try {
 		await mongoose.connect(DB_URL, { autoIndex: false });
 		app.listen(PORT, () => { console.log(`Server started on port ${PORT}!`); });
 		handleChat();
-		// эндпоинты
-		pushRecipe(app);
-		getRecipes(app);
-		getRecipe(app);
-		sendRecipeMsg(app, bot);
-		healthCheck(app);
-		sendListMsg(app, bot);
-		getUser(app);
-		createUser(app);
 	} catch (e) {
 		console.log(e);
 	}
 }
 
-startServer();
+main();
