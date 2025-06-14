@@ -3,10 +3,11 @@ const User = require('../schemas/User');
 class userController {
 	static async getUserByTgID(req, res) {
 		try {
+			const { tgID } = req.body;
 			const data = await User.aggregate([
 				{
 					$match: {
-						tgID: +req.query.tgID
+						tgID: +tgID
 					}
 				},
 				{
