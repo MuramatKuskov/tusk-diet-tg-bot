@@ -3,7 +3,7 @@ class chatController {
 		try {
 			const { query_id, recipe } = req.body;
 
-			await bot.answerWebAppQuery(query_id, {
+			await TG_BOT.answerWebAppQuery(query_id, {
 				type: 'article',
 				id: Math.floor(Math.random() * Date.now()),
 				title: recipe.title,
@@ -33,7 +33,7 @@ class chatController {
 
 	static async sendList(req, res) {
 		const { query_id, shoppingList } = req.body;
-		await bot.answerWebAppQuery(query_id, {
+		await TG_BOT.answerWebAppQuery(query_id, {
 			type: 'article',
 			id: Math.floor(Math.random() * Date.now()),
 			title: 'Список покупок',

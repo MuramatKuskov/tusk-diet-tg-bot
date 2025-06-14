@@ -15,23 +15,16 @@ function handleChat() {
 				msg.from.first_name
 		);
 
-		User.aggregate([
-			{
-				$match: {
-					tgID: +msg.from.id
-				}
-			},
-			{
-				$project: {
-					tgID: 0,
-					__v: 0,
-				}
-			}
-		]).then(data => {
-			if (!data.length) {
-				User.create({ tgID: +msg.from.id, username: username })
-			}
-		});
+		try {
+			await User.findOneAndUpdate(
+				{ tgID: +msg.from.id },
+				{ username, tgID: +msg.from.id },
+				{ upsert: true, new: true }
+			);
+		} catch (err) {
+			console.error(`Error registering user ${userId}:`, err);
+			await TG_BOT.sendMessage(process.env.channelID, "User auth error: " + msg.from.id + "; " + username + "; " + err);
+		}
 
 		greet(chatId);
 	});
